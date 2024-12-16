@@ -15,7 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
-import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.level.portal.TeleportTransition;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -42,7 +42,7 @@ public abstract class NetherPortalBlockMixin {
    * @param cir {@link CallbackInfoReturnable}.
    */
   @Inject(method = "getExitPortal", at = @At(value = "HEAD"))
-  private void onGetExitPortal(ServerLevel destination, Entity entity, BlockPos pos, BlockPos exitPos, boolean isNether, WorldBorder worldBorder, CallbackInfoReturnable<DimensionTransition> cir) {
+  private void onGetExitPortal(ServerLevel destination, Entity entity, BlockPos pos, BlockPos exitPos, boolean isNether, WorldBorder worldBorder, CallbackInfoReturnable<TeleportTransition> cir) {
     Constants.DIMENSION_ORIGIN_THREAD.set(entity.level().dimension());
   }
 

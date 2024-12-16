@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.NetherPortalBlock;
 import net.minecraft.world.level.portal.PortalShape;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 
@@ -30,7 +31,7 @@ public interface CustomPortalChecker {
    * @return portal related dimension.
    */
   static ResourceKey<Level> getPortalDimension(Level level, BlockPos pos) {
-    return ((CustomPortalChecker) new PortalShape(level, pos, level.getBlockState(pos).getOptionalValue(NetherPortalBlock.AXIS).orElse(Axis.X))).dimension();
+    return ((CustomPortalChecker) PortalShape.findAnyShape(level, pos, level.getBlockState(pos).getOptionalValue(NetherPortalBlock.AXIS).orElse(Axis.X))).dimension();
   }
 
   /**
@@ -72,11 +73,11 @@ public interface CustomPortalChecker {
   /**
    * Returns the list of Custom Dimensions.
    *
-   * @param server {@link ServerLevel}.
+   * @param level {@link ServerLevel}.
    * @return the list of Custom Dimensions.
    */
-  static List<ResourceKey<Level>> getCustomDimensions(ServerLevel server) {
-    return server.getServer().levelKeys().stream().filter(CustomPortalChecker::isCustomDimension).toList();
+  static List<ResourceKey<Level>> getCustomDimensions(ServerLevel level) {
+    return level.getServer().levelKeys().stream().filter(CustomPortalChecker::isCustomDimension).toList();
   }
 
   /**
@@ -116,13 +117,23 @@ public interface CustomPortalChecker {
    * @return a random Block for the Custom Portal frame.
    */
   static Block getCustomPortalFrameBlock(Level level) {
-    return BuiltInRegistries.BLOCK.getTag(getCustomPortalFrameBlockTag(level.dimension())).map(holders -> holders.getRandomElement(level.getRandom()).orElse(Holder.direct(Blocks.OBSIDIAN)).value()).orElse(Blocks.OBSIDIAN);
+    return BuiltInRegistries.BLOCK.get(getCustomPortalFrameBlockTag(level.dimension())).map(holders -> holders.getRandomElement(level.getRandom()).orElse(Holder.direct(Blocks.OBSIDIAN)).value()).orElse(Blocks.OBSIDIAN);
   }
 
   /**
    * Whether the portal is a Custom Portal.
    *
-   * @return whether the portal is a Custom Portal.
+   * @return portal dimension.
    */
   ResourceKey<Level> dimension();
+
+  /**
+   * Sets the dimension related to this portal.<br>
+   * Internal use only, calling this outside or after the portal initialization will result in an {@link IllegalStateException}.
+   *
+   * @param dimension dimension.
+   * @throws IllegalStateException if called after initialization.
+   */
+  @ApiStatus.Internal
+  void setDimension(ResourceKey<Level> dimension) throws IllegalStateException;
 }
