@@ -74,7 +74,7 @@ public abstract class PortalShapeMixin implements CustomPortalChecker {
         BlockPos bottomLeft = null;
         for (ResourceKey<Level> dimension : CustomPortalChecker.getDimensionsWithCustomPortal(serverLevel)) {
           // A Custom Portal can light up only in the Overworld or in the Custom Dimension it is for.
-          if (serverLevel.dimension() == Level.OVERWORLD || dim == serverLevel.dimension()) {
+          if (serverLevel.dimension() == Level.OVERWORLD || dimension == serverLevel.dimension()) {
             TagKey<Block> frameBlock = CustomPortalChecker.getCustomPortalFrameTag(dimension);
             bottomLeft = calculateBottomLeftForCustomDimension(level, direction, pos, frameBlock);
             if (bottomLeft != null) {
