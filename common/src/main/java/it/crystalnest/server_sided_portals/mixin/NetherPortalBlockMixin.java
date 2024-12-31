@@ -30,7 +30,7 @@ import java.util.Objects;
 @Mixin(NetherPortalBlock.class)
 public abstract class NetherPortalBlockMixin {
   /**
-   * Injects at the start of the method {@link NetherPortalBlock#getExitPortal(ServerLevel, Entity, BlockPos, BlockPos, boolean, WorldBorder)}.<br />
+   * Injects at the start of the method {@link NetherPortalBlock#getExitPortal(ServerLevel, Entity, BlockPos, BlockPos, boolean, WorldBorder)}.<br>
    * Sets the origin dimension for this entity.
    *
    * @param destination destination.
@@ -47,7 +47,7 @@ public abstract class NetherPortalBlockMixin {
   }
 
   /**
-   * Redirects the call to {@link MinecraftServer#getLevel(ResourceKey)} inside the method {@link NetherPortalBlock#getPortalDestination(ServerLevel, Entity, BlockPos)}.<br />
+   * Redirects the call to {@link MinecraftServer#getLevel(ResourceKey)} inside the method {@link NetherPortalBlock#getPortalDestination(ServerLevel, Entity, BlockPos)}.<br>
    * Corrects the destination dimension if needed.
    *
    * @param instance Minecraft server.
@@ -66,7 +66,7 @@ public abstract class NetherPortalBlockMixin {
   }
 
   /**
-   * Modifies the condition returned by {@link BlockState#isValidSpawn(BlockGetter, BlockPos, EntityType)} inside the method {@link NetherPortalBlock#randomTick(BlockState, ServerLevel, BlockPos, RandomSource)}.<br />
+   * Modifies the condition returned by {@link BlockState#isValidSpawn(BlockGetter, BlockPos, EntityType)} inside the method {@link NetherPortalBlock#randomTick(BlockState, ServerLevel, BlockPos, RandomSource)}.<br>
    * Prevents Zombified Piglins spawn when it's a Custom Portal.
    *
    * @param original original condition value.

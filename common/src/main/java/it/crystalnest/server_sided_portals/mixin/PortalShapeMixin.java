@@ -1,6 +1,5 @@
 package it.crystalnest.server_sided_portals.mixin;
 
-import it.crystalnest.server_sided_portals.Constants;
 import it.crystalnest.server_sided_portals.api.CustomPortalChecker;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -112,7 +111,7 @@ public abstract class PortalShapeMixin implements CustomPortalChecker {
   }
 
   /**
-   * Injects at the end of the constructor.<br />
+   * Injects at the end of the constructor.<br>
    * Checks if a Custom Portal can be created.
    *
    * @param level dimension.
@@ -124,23 +123,26 @@ public abstract class PortalShapeMixin implements CustomPortalChecker {
   private void onInit(LevelAccessor level, BlockPos pos, Axis axis, CallbackInfo ci) {
     if (!level.isClientSide()) {
       ServerLevel serverLevel = (ServerLevel) level;
-      if (this.isValid() && CustomPortalChecker.isCustomDimension(serverLevel)) {
+      if (this.isValid() && CustomPortalChecker.hasCustomPortalFrame(serverLevel)) {
         // If it's a Nether Portal, and we are in a Custom Dimension, prevent creating the portal.
         this.bottomLeft = null;
         this.setWidth(1);
         height = 1;
-      } else if (!isValid() && (serverLevel.dimension() == Level.OVERWORLD || CustomPortalChecker.isCustomDimension(serverLevel))) {
-        // If it's not a Nether Portal, and we are either in the Overworld or in a Custom Dimension, check if it's a Custom Portal.
-        for (ResourceKey<Level> dim : CustomPortalChecker.getCustomDimensions(serverLevel)) {
-          TagKey<Block> frameBlock = CustomPortalChecker.getCustomPortalFrameBlockTag(dim);
-          bottomLeft = calculateBottomLeftForCustomDimension(pos, frameBlock);
-          if (bottomLeft != null) {
-            setWidth(calculateWidthForCustomDimension(frameBlock));
-            if (width > 0) {
-              height = calculateHeightForCustomDimension(frameBlock);
-              this.dimension = dim;
-              // The first Custom Dimension to match breaks the loop and validates the Custom Portal.
-              break;
+      } else if (!isValid() && (serverLevel.dimension() == Level.OVERWORLD || CustomPortalChecker.hasCustomPortalFrame(serverLevel))) {
+        // If it's not a Nether Portal, and we are either in the Overworld or in a Custom Dimension, check whether it's a Custom Portal.
+        for (ResourceKey<Level> dim : CustomPortalChecker.getDimensionsWithCustomPortal(serverLevel)) {
+          // A Custom Portal can light up only in the Overworld or in the Custom Dimension it is for.
+          if (serverLevel.dimension() == Level.OVERWORLD || dim == serverLevel.dimension()) {
+            TagKey<Block> frameBlock = CustomPortalChecker.getCustomPortalFrameTag(dim);
+            bottomLeft = calculateBottomLeftForCustomDimension(pos, frameBlock);
+            if (bottomLeft != null) {
+              setWidth(calculateWidthForCustomDimension(frameBlock));
+              if (width > 0) {
+                height = calculateHeightForCustomDimension(frameBlock);
+                this.dimension = dim;
+                // The first Custom Dimension to match breaks the loop and validates the Custom Portal.
+                break;
+              }
             }
           }
         }
