@@ -64,25 +64,28 @@ public abstract class PortalShapeMixin implements CustomPortalChecker {
   private static PortalShape modifyFindAnyShape(PortalShape original, BlockGetter level, BlockPos pos, Direction.Axis axis) {
     if (level instanceof ServerLevel serverLevel) {
       Direction direction = axis == Direction.Axis.X ? Direction.WEST : Direction.SOUTH;
-      if (original.isValid() && CustomPortalChecker.isCustomDimension(serverLevel)) {
+      if (original.isValid() && CustomPortalChecker.hasCustomPortalFrame(serverLevel)) {
         // If it's a Nether Portal, and we are in a Custom Dimension, prevent creating the portal.
         return new PortalShape(axis, 0, direction, pos, 0, 0);
       }
-      if (!original.isValid() && (serverLevel.dimension() == Level.OVERWORLD || CustomPortalChecker.isCustomDimension(serverLevel))) {
-        // If it's not a Nether Portal, and we are either in the Overworld or in a Custom Dimension, check if it's a Custom Portal.
+      if (!original.isValid() && (serverLevel.dimension() == Level.OVERWORLD || CustomPortalChecker.hasCustomPortalFrame(serverLevel))) {
+        // If it's not a Nether Portal, and we are either in the Overworld or in a Custom Dimension, check whether it's a Custom Portal.
         int width = 0;
         BlockPos bottomLeft = null;
-        for (ResourceKey<Level> dimension : CustomPortalChecker.getCustomDimensions(serverLevel)) {
-          TagKey<Block> frameBlock = CustomPortalChecker.getCustomPortalFrameBlockTag(dimension);
-          bottomLeft = calculateBottomLeftForCustomDimension(level, direction, pos, frameBlock);
-          if (bottomLeft != null) {
-            width = calculateWidthForCustomDimension(level, bottomLeft, direction, frameBlock);
-            if (width > 0) {
-              MutableInt portalBlocks = new MutableInt();
-              // The first Custom Dimension to match breaks the loop and validates the Custom Portal.
-              PortalShape portal = new PortalShape(axis, portalBlocks.getValue(), direction, bottomLeft, width, calculateHeightForCustomDimension(level, bottomLeft, direction, width, portalBlocks, frameBlock));
-              ((CustomPortalChecker) portal).setDimension(dimension);
-              return portal;
+        for (ResourceKey<Level> dimension : CustomPortalChecker.getDimensionsWithCustomPortal(serverLevel)) {
+          // A Custom Portal can light up only in the Overworld or in the Custom Dimension it is for.
+          if (serverLevel.dimension() == Level.OVERWORLD || dim == serverLevel.dimension()) {
+            TagKey<Block> frameBlock = CustomPortalChecker.getCustomPortalFrameTag(dimension);
+            bottomLeft = calculateBottomLeftForCustomDimension(level, direction, pos, frameBlock);
+            if (bottomLeft != null) {
+              width = calculateWidthForCustomDimension(level, bottomLeft, direction, frameBlock);
+              if (width > 0) {
+                MutableInt portalBlocks = new MutableInt();
+                // The first Custom Dimension to match breaks the loop and validates the Custom Portal.
+                PortalShape portal = new PortalShape(axis, portalBlocks.getValue(), direction, bottomLeft, width, calculateHeightForCustomDimension(level, bottomLeft, direction, width, portalBlocks, frameBlock));
+                ((CustomPortalChecker) portal).setDimension(dimension);
+                return portal;
+              }
             }
           }
         }

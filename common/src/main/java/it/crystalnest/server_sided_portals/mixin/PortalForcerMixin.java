@@ -16,6 +16,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
 import java.util.Objects;
@@ -37,50 +38,44 @@ public abstract class PortalForcerMixin {
   /**
    * Returns the correct {@link BlockState} to create a portal.
    *
-   * @param level destination dimension.
    * @param state block state.
    * @return the correct {@link BlockState} to create a portal.
    */
   @Unique
-  private BlockState getCorrectBlockState(ServerLevel level, BlockState state) {
+  private BlockState getCorrectBlockState(BlockState state) {
     if (state.is(Blocks.OBSIDIAN)) {
       ResourceKey<Level> origin = Constants.DIMENSION_ORIGIN_THREAD.get();
-      return CustomPortalChecker.getCustomPortalFrameBlock(CustomPortalChecker.isCustomDimension(origin) ? Objects.requireNonNull(level.getServer().getLevel(origin)) : level).defaultBlockState();
+      return CustomPortalChecker.getCustomPortalFrameBlock(CustomPortalChecker.hasCustomPortalFrame(origin) ? Objects.requireNonNull(level.getServer().getLevel(origin)) : level).defaultBlockState();
     }
     return state;
   }
 
   /**
-   * Redirects the call to {@link ServerLevel#setBlockAndUpdate(BlockPos, BlockState)} inside the method {@link PortalForcer#createPortal(BlockPos, Axis)}.<br />
-   * Calls the same redirected method, but with the correct {@link BlockState}.
+   * Modifies the second argument of the call to {@link ServerLevel#setBlockAndUpdate(BlockPos, BlockState)} inside the method {@link PortalForcer#createPortal(BlockPos, Axis)}.<br>
+   * Changes the original {@link BlockState} with the correct one.
    *
-   * @param instance {@link ServerLevel} owning the redirected method.
-   * @param pos block position.
    * @param state block state.
    * @return whether the {@link BlockState} has been set in the {@link ServerLevel}.
    */
-  @Redirect(method = "createPortal", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"))
-  private boolean redirectSetBlockStateNoFlags$createPortal(ServerLevel instance, BlockPos pos, BlockState state) {
-    return instance.setBlockAndUpdate(pos, getCorrectBlockState(instance, state));
+  @ModifyArg(method = "createPortal", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlockAndUpdate(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;)Z"), index = 1)
+  private BlockState redirectSetBlockStateNoFlags$createPortal(BlockState state) {
+    return getCorrectBlockState(state);
   }
 
   /**
-   * Redirects the call to {@link ServerLevel#setBlock(BlockPos, BlockState, int)} inside the method {@link PortalForcer#createPortal(BlockPos, Axis)}.<br />
-   * Calls the same redirected method, but with the correct {@link BlockState}.
+   * Modifies the second argument of the call to {@link ServerLevel#setBlock(BlockPos, BlockState, int)} inside the method {@link PortalForcer#createPortal(BlockPos, Axis)}.<br>
+   * Changes the original {@link BlockState} with the correct one.
    *
-   * @param instance {@link ServerLevel} owning the redirected method.
-   * @param pos block position.
    * @param state block state.
-   * @param flags update flags.
    * @return whether the {@link BlockState} has been set in the {@link ServerLevel}.
    */
-  @Redirect(method = "createPortal", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z", ordinal = 0))
-  private boolean redirectSetBlockStateWithFlags$createPortal(ServerLevel instance, BlockPos pos, BlockState state, int flags) {
-    return instance.setBlock(pos, getCorrectBlockState(instance, state), flags);
+  @ModifyArg(method = "createPortal", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerLevel;setBlock(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;I)Z", ordinal = 0), index = 1)
+  private BlockState redirectSetBlockStateWithFlags$createPortal(BlockState state) {
+    return getCorrectBlockState(state);
   }
 
   /**
-   * Redirects the call to {@link Stream#filter(Predicate)} inside the method {@link PortalForcer#findClosestPortalPosition(BlockPos, boolean, WorldBorder)}.<br />
+   * Redirects the call to {@link Stream#filter(Predicate)} inside the method {@link PortalForcer#findClosestPortalPosition(BlockPos, boolean, WorldBorder)}.<br>
    * Adds a new condition to the predicate to prevent teleporting from Nether Portals to custom portals and vice versa.
    *
    * @param instance stream of {@link BlockPos}s owning the redirected method.
