@@ -1,6 +1,8 @@
 package it.crystalnest.server_sided_portals.mixin;
 
+import it.crystalnest.server_sided_portals.Constants;
 import it.crystalnest.server_sided_portals.api.CustomPortalChecker;
+import it.crystalnest.server_sided_portals.platform.Services;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
@@ -24,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.lang.reflect.Field;
 import java.util.Objects;
 
 /**
@@ -122,6 +125,21 @@ public abstract class PortalShapeMixin implements CustomPortalChecker {
   @Inject(method = "<init>(Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction$Axis;)V", at = @At(value = "TAIL"))
   private void onInit(LevelAccessor level, BlockPos pos, Axis axis, CallbackInfo ci) {
     if (!level.isClientSide()) {
+      Object bnShape = null;
+      if (Services.PLATFORM.isModLoaded("betternether")) {
+        // Try to circumvent incompatibility with BetterNether.
+        try {
+          Constants.LOGGER.debug("Attempting to nullify field 'bn_shape' added by mod 'betternether'...");
+          bnShape = this.getClass().getDeclaredField("bn_shape").get(this);
+          this.getClass().getDeclaredField("bn_shape").set(this, null);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+          Constants.LOGGER.error("Failed to nullify field 'bn_shape' added by mod 'betternether'", e);
+          Constants.LOGGER.debug("Available fields for PortalShape were:");
+          for (Field field : this.getClass().getDeclaredFields()) {
+            Constants.LOGGER.debug(field.getName());
+          }
+        }
+      }
       ServerLevel serverLevel = (ServerLevel) level;
       if (this.isValid() && CustomPortalChecker.hasCustomPortalFrame(serverLevel)) {
         // If it's a Nether Portal, and we are in a Custom Dimension, prevent creating the portal.
@@ -151,6 +169,14 @@ public abstract class PortalShapeMixin implements CustomPortalChecker {
           bottomLeft = pos;
           setWidth(1);
           height = 1;
+        }
+      }
+      if (bnShape != null && dimension == Level.NETHER && (serverLevel.dimension() == Level.OVERWORLD || serverLevel.dimension() == Level.NETHER)) {
+        try {
+          Constants.LOGGER.debug("Attempting to restore field 'bn_shape' added by mod 'betternether'...");
+          this.getClass().getDeclaredField("bn_shape").set(this, bnShape);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+          Constants.LOGGER.error("Failed to restore field 'bn_shape' added by mod 'betternether'", e);
         }
       }
     }
