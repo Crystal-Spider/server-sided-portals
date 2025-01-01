@@ -23,8 +23,10 @@ Check out the usage details below or on the [Wiki](https://github.com/Crystal-Ne
 ## **Features**
 
 - Allows the creation of portals with a custom frame that are linked for a specific dimension.
-- Choose the frame blocks simply with a block tag! Multiple blocks are allowed!
+- Choose the frame blocks simply with a block tag! Multiple blocks are allowed.
+- Optionally, choose the item that can light up the portal simply with an item tag! Multiple items are allowed.
 - Required only server side!
+- It's possible to add portals for already existing dimensions (e.g. added by other mods)!
 - Fully compatible with both modded and Vanilla clients.
 - Easy to use with either a mod or a datapack.
 
@@ -39,19 +41,23 @@ It's very easy to make use of this mod API with a custom datapack:
 1. Create a datapack following [this tutorial](https://minecraft.wiki/w/Tutorials/Creating_a_data_pack).
 2. Create a custom dimension type with [this generator](https://misode.github.io/dimension-type/).
 3. Create a custom dimension with [this generator](https://misode.github.io/dimension/).
-4. Create a custom block tag for the portal frame. You can add multiple blocks and other block tags too!
-5. Make sure all the JSON files you created in the previous steps are called the exact same.
+4. Create a custom block tag for the portal frame. You can add multiple blocks and other block tags too!  
+   The tag name needs to be `dimension_portal_frame` (where `dimension` is the dimension name).
+5. Optionally, create a custom item tag for the portal igniter item(s). You can add multiple items and other item tags too!  
+   The tag name needs to be `dimension_portal_igniter` (where `dimension` is the dimension name).
+6. Make sure all the JSON files you created in the previous steps are located under the same namespace.
 
 That's it! When the datapack is loaded along with this mod, all dimensions will be loaded, and it'll be possible to create portals with the specified frame blocks!  
-You can also add multiple dimensions, each with its custom portal definition: just make sure that, for each one, the dimension files and the block tag file are called the same.
+It goes without saying that you can also add multiple dimensions, each with its own custom portal frame and (optionally) igniter definitions.
 
 ### Mod
 
 Making a mod that leverages this API is simple.  
 Follow the instructions in the datapack section above, but put the files under `resources/data/mod_id/`.  
+If you'd rather have the SSP-related datapack toggleable by the user, you can leverage [Cobweb static datapack API](https://github.com/Crystal-Nest/cobweb/wiki/Common-API#static--dynamic-resource-packs).  
 Making a mod rather than a datapack might be useful for adding extra functionality regarding your dimension.
 
-There are also a few useful utility methods available, for which you can check out the Javadoc for more details.
+There are also a bunch of useful utility methods available, for which you can check out the Javadoc for more details.
 
 ## **Compatibilities**
 
@@ -59,7 +65,7 @@ There are also a few useful utility methods available, for which you can check o
 |:---------------------------------------------------------------|:------:|:------------------------------------------------------------------------------------------------------------------------------:|
 | [Crying Portals](https://modrinth.com/mod/crying-portals)      |  All   |                                                          Incompatible                                                          |
 | [Immersive Portals](https://modrinth.com/mod/immersiveportals) |  All   |                                                          Incompatible                                                          |
-| [BetterNether](https://modrinth.com/mod/betternether)          | Fabric |                                                          Incompatible                                                          |
+| [BetterNether](https://modrinth.com/mod/betternether)          | Fabric |                                                    Compatible since `1.21`                                                     |
 | [Very Many Players](https://modrinth.com/mod/vmp-fabric)       | Fabric |                                           Compatible with `use_async_portals=false`                                            |
 | [Canary](https://modrinth.com/mod/canary)                      | Forge  | Compatible with [fast portals](https://github.com/AbdElAziz333/Canary/wiki/Configuration-File#mixinaipoifast_portals) disabled |
 
