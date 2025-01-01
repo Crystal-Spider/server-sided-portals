@@ -1,6 +1,5 @@
 package it.crystalnest.server_sided_portals.api;
 
-import it.crystalnest.server_sided_portals.Constants;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Holder;
@@ -109,7 +108,7 @@ public interface CustomPortalChecker {
    * @return Block Tag for the Custom Portal Frame.
    */
   static TagKey<Block> getCustomPortalFrameTag(ResourceKey<Level> dimension) {
-    return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, dimension.location().getPath() + "_portal_frame"));
+    return TagKey.create(Registries.BLOCK, ResourceLocation.fromNamespaceAndPath(dimension.location().getNamespace(), dimension.location().getPath() + "_portal_frame"));
   }
 
   /**
@@ -149,7 +148,7 @@ public interface CustomPortalChecker {
    * @return Item Tag for the Custom Portal Igniter item.
    */
   static TagKey<Item> getCustomPortalIgniterTag(ResourceKey<Level> dimension) {
-    return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(Constants.MOD_ID, dimension.location().getPath() + "_portal_igniter"));
+    return TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath(dimension.location().getNamespace(), dimension.location().getPath() + "_portal_igniter"));
   }
 
   /**
