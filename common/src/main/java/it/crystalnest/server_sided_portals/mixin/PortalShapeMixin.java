@@ -83,7 +83,9 @@ public abstract class PortalShapeMixin implements CustomPortalChecker {
                 MutableInt portalBlocks = new MutableInt();
                 // The first Custom Dimension to match breaks the loop and validates the Custom Portal.
                 PortalShape portal = new PortalShape(axis, portalBlocks.getValue(), direction, bottomLeft, width, calculateHeightForCustomDimension(level, bottomLeft, direction, width, portalBlocks, frameBlock));
-                ((CustomPortalChecker) portal).setDimension(dimension);
+                if (portal.isValid()) {
+                  ((CustomPortalChecker) portal).setDimension(dimension);
+                }
                 return portal;
               }
             }
@@ -281,8 +283,8 @@ public abstract class PortalShapeMixin implements CustomPortalChecker {
    */
   @Inject(method = "<init>", at = @At(value = "TAIL"))
   private void finalizeDimension(Direction.Axis axis, int numPortalBlocks, Direction direction, BlockPos bottomLeft, int width, int height, CallbackInfo ci) {
-    if (!this.isValid()) {
-      this.setDimension(Level.NETHER);
+    if (!isValid()) {
+      setDimension(Level.NETHER);
     }
   }
 }

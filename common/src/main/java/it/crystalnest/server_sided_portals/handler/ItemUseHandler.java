@@ -34,13 +34,15 @@ public abstract class ItemUseHandler {
     if (level instanceof ServerLevel server && !player.isSpectator()) {
       Optional<TagKey<Block>> frame = CustomPortalChecker.getDimensionsWithCustomPortal(server).stream().map(CustomPortalChecker::getCustomPortalFrameTag).filter(tag -> server.getBlockState(pos).is(tag)).findAny();
       Optional<TagKey<Item>> igniter = CustomPortalChecker.getDimensionsWithCustomPortal(server).stream().map(CustomPortalChecker::getCustomPortalIgniterTag).filter(tag -> player.getItemInHand(hand).is(tag)).findAny();
-      Optional<PortalShape> portal = PortalShape.findEmptyPortalShape(server, pos.relative(face), Direction.Axis.X);
-      if (portal.isPresent() && frame.isPresent() && igniter.isPresent()) {
-        ResourceKey<Level> dimension = ((CustomPortalChecker) portal.get()).dimension();
-        if (CustomPortalChecker.getCustomPortalFrameTag(dimension).equals(frame.get()) && CustomPortalChecker.getCustomPortalIgniterTag(dimension).equals(igniter.get())) {
-          player.swing(hand, true);
-          portal.get().createPortalBlocks(level);
-          return true;
+      if (frame.isPresent() && igniter.isPresent()) {
+        Optional<PortalShape> portal = PortalShape.findEmptyPortalShape(server, pos.relative(face), Direction.Axis.X);
+        if (portal.isPresent()) {
+          ResourceKey<Level> dimension = ((CustomPortalChecker) portal.get()).dimension();
+          if (CustomPortalChecker.getCustomPortalFrameTag(dimension).equals(frame.get()) && CustomPortalChecker.getCustomPortalIgniterTag(dimension).equals(igniter.get())) {
+            player.swing(hand, true);
+            portal.get().createPortalBlocks(level);
+            return true;
+          }
         }
       }
     }
