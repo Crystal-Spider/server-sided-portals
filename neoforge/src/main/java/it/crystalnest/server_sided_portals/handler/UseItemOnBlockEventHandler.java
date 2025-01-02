@@ -25,7 +25,7 @@ public final class UseItemOnBlockEventHandler extends ItemUseHandler {
    */
   @SubscribeEvent
   public static void handle(UseItemOnBlockEvent event) {
-    if (INSTANCE.handle(event.getLevel(), event.getEntity(), event.getHand(), event.getUseOnContext().getClickedPos(), event.getUseOnContext().getClickedFace())) {
+    if (INSTANCE.handle(event.getLevel(), event.getPlayer(), event.getHand(), event.getUseOnContext().getClickedPos(), event.getUseOnContext().getClickedFace())) {
       event.cancelWithResult(ItemInteractionResult.SUCCESS);
     }
   }
